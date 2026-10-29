@@ -3,7 +3,7 @@
 
     .\Audit-FSMO.ps1 -Old <current-dc> -New <target-dc>
 
-  Must end in GO. Run elevated on a DC.
+  Run elevated on a DC.
   Only local output is written: C:\Temp\FSMO-Audit-<timestamp>.
 #>
 param(
@@ -76,10 +76,6 @@ foreach ($n in 'Schema Admins','Enterprise Admins','Domain Admins') {
 Section '6. Time config on current PDC (new PDC will need the same external source)'
 w32tm /query /computer:$Old /source
 w32tm /query /computer:$Old /configuration | Tee-Object "$Log\time-$Old.txt" | Select-String 'Type:|NtpServer:'
-
-Section '7. Last backup of old DC'
-repadmin /showbackup $Old
-$Review.Add('Confirm the backup dates in section 7 are recent')
 
 Section 'Summary'
 if ($Review.Count) { 'REVIEW:'; $Review | ForEach-Object { "  - $_" } }
